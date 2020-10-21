@@ -131,7 +131,10 @@ class ContextFinder {
     }
 
     /**
-     * Create an instance of a class using the specified ClassLoader
+     * Create an instance of a class using the specified ClassLoader.
+     * The className for the factory will be looked up in the specified classLoader
+     * first and, if not found, in the internal module class loader. This way
+     * the internal jaxb implementation module is always taken into account.
      */
     static JAXBContext newInstance(String contextPath,
           Class[] contextPathClasses,
@@ -149,7 +152,13 @@ class ContextFinder {
                                    Map properties) throws JAXBException {
 
         try {
-            Class spFactory = ServiceLoaderUtil.safeLoadClass(className, PLATFORM_DEFAULT_FACTORY_CLASS, factoryClassloader);
+            Class spFactory = null;
+            try {
+                spFactory = ServiceLoaderUtil.safeLoadClass(className, PLATFORM_DEFAULT_FACTORY_CLASS, factoryClassloader);
+            } catch (ClassNotFoundException e) {
+                // always try to find the spFactory in the module class loader
+                spFactory = ServiceLoaderUtil.safeLoadClass(className, PLATFORM_DEFAULT_FACTORY_CLASS, ContextFinder.class.getClassLoader());
+            }
             return newInstance(contextPath, contextPathClasses, spFactory, classLoader, properties);
         } catch (ClassNotFoundException x) {
             throw new JAXBException(Messages.format(Messages.DEFAULT_PROVIDER_NOT_FOUND), x);
@@ -245,7 +254,10 @@ class ContextFinder {
     }
 
     /**
-     * Create an instance of a class using the thread context ClassLoader
+     * Create an instance of a class using the thread context ClassLoader.
+     * The className for the factory will be looked up in the specified loader
+     * first and, if not found, in the internal module class loader. This way
+     * the internal jaxb implementation module is always taken into account.
      */
     static JAXBContext newInstance(Class[] classes, Map properties, String className, ClassLoader loader) throws JAXBException {
 
@@ -253,7 +265,12 @@ class ContextFinder {
         try {
             spi = ServiceLoaderUtil.safeLoadClass(className, PLATFORM_DEFAULT_FACTORY_CLASS, loader);
         } catch (ClassNotFoundException e) {
-            throw new JAXBException(Messages.format(Messages.DEFAULT_PROVIDER_NOT_FOUND), e);
+            try {
+                // try to find the spi in the module class loader
+                spi = ServiceLoaderUtil.safeLoadClass(className, PLATFORM_DEFAULT_FACTORY_CLASS, ContextFinder.class.getClassLoader());
+            } catch (ClassNotFoundException x) {
+                throw new JAXBException(Messages.format(Messages.DEFAULT_PROVIDER_NOT_FOUND), x);
+            }
         }
 
         if (logger.isLoggable(Level.FINE)) {
