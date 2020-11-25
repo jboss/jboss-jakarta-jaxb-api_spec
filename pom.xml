@@ -23,7 +23,7 @@
 
     <groupId>org.jboss.spec.javax.xml.bind</groupId>
     <artifactId>jboss-jaxb-api_2.3_spec-parent</artifactId>
-    <version>2.0.1.Final</version>
+    <version>2.0.2.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Jakarta XML Binding</name>
     <description>Jakarta XML Binding API</description>
@@ -33,7 +33,7 @@
         <connection>scm:git:https://github.com/jboss/jboss-jakarta-jaxb-api_spec.git</connection>
         <developerConnection>scm:git:https://github.com/jboss/jboss-jakarta-jaxb-api_spec.git</developerConnection>
         <url>https://github.com/jboss/jboss-jakarta-jaxb-api_spec.git</url>
-        <tag>2.0.1.Final</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
